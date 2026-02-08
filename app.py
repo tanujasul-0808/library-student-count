@@ -87,7 +87,7 @@ with tab3:
         st.metric(label="Predicted Students in Library", value=result)
         
         if result > 100:
-            st.warning("⚠️ High Traffic Expected! Arrange extra chairs.")
+            st.warning(" High Traffic Expected! Arrange extra chairs.")
         else:
             st.info("Normal Traffic.")
 
