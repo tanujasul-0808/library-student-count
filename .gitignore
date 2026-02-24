@@ -1,2 +1,12 @@
-venv/
+# Ignore model and scaler files
+models/*.pkl
+
+# Ignore logs
+models/*.json
+
+# Ignore databases
+data/*.db
+
+# Ignore Python cache
 __pycache__/
+venv/
