@@ -1,0 +1,30 @@
+{
+    "best_model": "XGBoost",
+    "leaderboard": {
+        "Linear Regression": {
+            "MAE (Students)": 12.72,
+            "RMSE (Penalty)": 23.37,
+            "MAPE (%)": "5.362800145732032e+17%",
+            "R2_Score": 0.865
+        },
+        "Decision Tree": {
+            "MAE (Students)": 5.36,
+            "RMSE (Penalty)": 6.56,
+            "MAPE (%)": "1.3727948961991773e+17%",
+            "R2_Score": 0.989
+        },
+        "Random Forest": {
+            "MAE (Students)": 5.17,
+            "RMSE (Penalty)": 6.04,
+            "MAPE (%)": "1.4730257789646416e+17%",
+            "R2_Score": 0.991
+        },
+        "XGBoost": {
+            "MAE (Students)": 4.87,
+            "RMSE (Penalty)": 5.72,
+            "MAPE (%)": "1.898680755945472e+17%",
+            "R2_Score": 0.992
+        }
+    },
+    "last_trained": "2026-03-09 22:19:11"
+}
