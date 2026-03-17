@@ -13,12 +13,33 @@ st.set_page_config(page_title="Lib-Count Dashboard", layout="wide")
 st.title("Lib-Count: Library Usage Prediction System")
 st.markdown("Hackathon 3 Project | Predictive Analytics for University Library")
 
+# Sidebar for Info and Navigation
+with st.sidebar:
+    st.image("https://img.icons8.com/fluency/100/library.png") # Or a local logo
+    st.title("Admin Control Panel")
+    st.info(f"Target Campus Population: 350 Students") # Using your university data
+    st.markdown("---")
+
+
 # Tabs for Navigation
 tab1, tab2, tab3, tab4 = st.tabs(["Data & Analysis", " Model Training", " Prediction", " Logs"])
 
 #  TAB 1: DATA 
 with tab1:
-    st.header("Data Management")
+    st.header("Data Management & Insights")
+    # NEW: Summary Metrics for a quick "Health Check"
+    df = load_data_from_db()
+    if not df.empty:
+        m1, m2, m3 = st.columns(3)
+        avg_attendance = df['LibraryStudentCount'].mean()
+        peak_day_idx = df.groupby('DayOfWeek')['LibraryStudentCount'].mean().idxmax()
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        
+        m1.metric("Avg. Daily Attendance", f"{int(avg_attendance)} Students")
+        m2.metric("Busiest Day", days[peak_day_idx])
+        m3.metric("Campus Capacity", "350", "Total") # Grounded in university data
+        st.markdown("---")
+
     col1, col2 = st.columns(2)
     
     with col1:
@@ -52,17 +73,37 @@ with tab1:
     else:
         st.warning("No data found. Please generate data first.")
 
-# Inside tab2 of app.py
-if st.button("Train Models"):
-    df = load_data_from_db()
-    if not df.empty:
-        with st.spinner("Training & Evaluating with RMSE, MAE, MAPE..."):
-            # This function now returns a dataframe of results
-            results_df, best_model_name = train_and_evaluate(df) 
-        
-        st.success(f"Best Model Identified: {best_model_name}")
-        st.subheader("Model Performance Leaderboard")
-        st.table(results_df) # Visualizing the comparison clearly
+
+#  TAB 2: MODEL TRAINING OF app.py
+with tab2:
+    st.header("Model Performance & Evaluation")
+    st.write("Compare different algorithms to find the most accurate attendance predictor.")
+
+    if st.button("Train Models"):
+        df = load_data_from_db()
+        if not df.empty:
+            with st.spinner("Training & Evaluating with RMSE, MAE, MAPE..."):
+                # This function returns your results
+                results_df, best_model_name = train_and_evaluate(df) 
+            
+            # 1. Success Message
+            st.success(f" Best Model Identified: {best_model_name}")
+            
+            # 2. Results Table with styling
+            st.subheader("Model Leaderboard")
+            st.dataframe(results_df) 
+            st.write("Columns found in results:", results_df.columns.tolist())
+
+            # 3. Explanatory Expander (The "Brain" of the dashboard)
+            with st.expander("What do these metrics mean?!"):
+                st.markdown("""
+                - **RMSE (Root Mean Squared Error):** This is our primary 'penalty' score. It shows how many students we are 'off' by on average.
+                - **MAE (Mean Absolute Error):** This is the average absolute difference between predicted and actual attendance.
+                - **MAPE:** This shows the error as a percentage of the total student count.
+                """)
+        else:
+            st.warning("Please generate data in Tab 1 before training!")
+
 
 #  TAB 3: PREDICTION 
 with tab3:
@@ -79,14 +120,42 @@ with tab3:
         is_holiday = st.checkbox("Is it a Holiday?")
         is_exam = st.checkbox("Is it Exam Week?")
     
-    if st.button("Predict Headcount"):
+
+if st.button("Predict Headcount"):
         result = make_prediction(day, int(is_holiday), int(is_exam), librarian, total_students)
-        st.metric(label="Predicted Students in Library", value=result)
         
-        if result > 100:
-            st.warning(" High Traffic Expected! Arrange extra chairs.")
+        # 1. Visual Display of the Prediction
+        st.markdown("---")
+        col_res1, col_res2 = st.columns(2)
+        
+        with col_res1:
+            st.metric(label="Predicted Students in Library", value=f"{int(result)} / 350")
+        
+        with col_res2:
+            # Calculate occupancy percentage
+            occupancy = (result / 350) * 100
+            st.metric(label="Estimated Occupancy", value=f"{int(occupancy)}%")
+
+        # 2. Smart Recommendations based on the prediction
+        st.subheader("Administrative Recommendations")
+        
+        if result > 120:
+            st.error("**High Traffic Alert**")
+            st.write("""
+            - **Seating:** Open the overflow study hall.
+            - **Environment:** Ensure the Air Conditioning is set to maximum (Room H510-207 standards!).
+            - **Staffing:** Deploy an extra student assistant at the entry gate.
+            """)
+        elif is_exam:
+            st.warning("**Exam Season Protocol**")
+            st.write("""
+            - **Quiet Zones:** Enforce 'No-Talk' zones in the main wing.
+            - **Resources:** Check if charging ports and Wi-Fi routers are handling the load.
+            """)
         else:
-            st.info("Normal Traffic.")
+            st.success("**Normal Operations**")
+            st.write("- Standard maintenance and lighting schedules apply.")
+
 
 #  TAB 4: LOGS
 with tab4:
@@ -97,3 +166,17 @@ with tab4:
             st.json(logs)
     except FileNotFoundError:
         st.write("No training logs available yet.")
+
+
+        # --- FOOTER & SYSTEM STATUS ---
+st.markdown("---")
+footer_col1, footer_col2 = st.columns([3, 1])
+
+with footer_col1:
+    st.caption("© 2026 Lib-Count Predictive Systems")
+    st.caption("Data sources: University Student Portal & Library Entry Logs")
+
+with footer_col2:
+    # A small 'live' indicator
+    st.success("System Online")
+    
