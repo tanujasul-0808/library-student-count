@@ -14,10 +14,10 @@
             "R2_Score": 0.989
         },
         "Random Forest": {
-            "MAE (Students)": 5.1,
-            "RMSE (Penalty)": 6.02,
-            "MAPE (%)": "1.415992525912682e+17%",
-            "R2_Score": 0.991
+            "MAE (Students)": 5.36,
+            "RMSE (Penalty)": 6.31,
+            "MAPE (%)": "1.4507671981625926e+17%",
+            "R2_Score": 0.99
         },
         "XGBoost": {
             "MAE (Students)": 4.87,
@@ -26,5 +26,5 @@
             "R2_Score": 0.992
         }
     },
-    "last_trained": "2026-03-18 01:18:04"
+    "last_trained": "2026-03-18 17:04:05"
 }
