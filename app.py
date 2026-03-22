@@ -6,20 +6,13 @@ import seaborn as sns
 from src.data_generator import generate_library_data
 from src.db_manager import save_data_to_db, load_data_from_db
 from src.model_engine import train_and_evaluate, make_prediction
+import plotly.graph_objects as go
 
 # Page Config
 st.set_page_config(page_title="Lib-Count Dashboard", layout="wide")
 
 st.title("Lib-Count: Library Usage Prediction System")
-st.markdown("Hackathon 3 Project | Predictive Analytics for University Library")
-
-# Sidebar for Info and Navigation
-with st.sidebar:
-    st.image("https://img.icons8.com/fluency/100/library.png") # Or a local logo
-    st.title("Admin Control Panel")
-    st.info(f"Target Campus Population: 350 Students") # Using your university data
-    st.markdown("---")
-
+st.markdown("Predictive Analytics for University Library")
 
 # Tabs for Navigation (Added Feedback)
 tab1, tab2, tab3, tab4 = st.tabs(["Data & Analysis", "Model Training", "Prediction", "Logs"])
@@ -148,11 +141,34 @@ if st.button("Predict Headcount"):
     
     with col_res1:
         st.metric(label="Predicted Students in Library", value=f"{int(result)} / {total_students}")
+
+
+with col_res2:
+    occupancy = (result / total_students) * 100 if total_students > 0 else 0
     
-    with col_res2:
-        # result and total_students are both accessible here
-        occupancy = (result / total_students) * 100 if total_students > 0 else 0
-        st.metric(label="Estimated Occupancy", value=f"{int(occupancy)}%")
+    fig = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = occupancy,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': "Library Capacity (%)", 'font': {'size': 18}},
+        gauge = {
+            'axis': {'range': [None, 100], 'tickwidth': 1},
+            'bar': {'color': "#1E3A8A"}, # University Blue
+            'bgcolor': "white",
+            'steps': [
+                {'range': [0, 50], 'color': '#D1FAE5'},   # Light Green
+                {'range': [50, 80], 'color': '#FEF3C7'},  # Yellow
+                {'range': [80, 100], 'color': '#FEE2E2'}  # Light Red
+            ],
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.75,
+                'value': 90
+            }
+        }
+    ))
+    fig.update_layout(height=250, margin=dict(l=20, r=20, t=50, b=20))
+    st.plotly_chart(fig, use_container_width=True)
 
     # 2. Smart Recommendations based on the prediction
     st.subheader("Administrative Recommendations")
